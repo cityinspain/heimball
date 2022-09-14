@@ -1,0 +1,49 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Player {
+  id String @id @default(cuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name       String
+  firstName  String?
+  middleName String?
+  lastName   String?
+  useName    String?
+
+  primaryPosition String?
+  primaryNumber   Int?
+
+  birthStateProvince String?
+  birthCountry       String?
+  birthCity          String?
+  birthDate          DateTime?
+  height             Int?
+  weight             Int?
+
+  active Boolean?
+
+  currentTeamId String?
+  parentOrgId   String?
+
+  draftYear Int?
+
+  mlbId                  String? @unique
+  bbrefId                String? @unique
+  bbrefMinorsId          String? @unique
+  retroId                String? @unique
+  fangraphsId            String?
+  fangraphsMinorMasterId String?
+
+  fangraphsOrgProspectRanking Int?
+  fangraphsOverallProspectRanking Int?
+}
