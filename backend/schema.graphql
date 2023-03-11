@@ -8,6 +8,37 @@ A date string, such as 2007-12-03, compliant with the `full-date` format outline
 scalar Date
 
 type Mutation {
+  createOrUpdatePlayerByMlbId(
+    active: Boolean
+    bbrefId: String
+    bbrefMinorsId: String
+    birthCity: String
+    birthCountry: String
+
+    """YYYY-MM-DD"""
+    birthDate: Date
+    birthStateProvince: String
+    currentTeamId: String
+    fangraphsId: String
+    fangraphsMinorMasterId: String
+    fangraphsOrgProspectRanking: Int
+    fangraphsOverallProspectRanking: Int
+    firstName: String
+    fullName: String
+    height: Int
+    id: ID
+    lastName: String
+    matrilinealName: String
+    middleName: String
+    mlbId: String
+    name: String
+    parentOrgId: String
+    primaryNumber: Int
+    primaryPosition: String
+    retroId: String
+    useName: String
+    weight: Int
+  ): Player
   createPlayer(
     active: Boolean
     bbrefId: String
@@ -39,7 +70,6 @@ type Mutation {
     useName: String
     weight: Int
   ): Player
-  resetAllFangraphsRankings: Player
   updatePlayerByBbrefId(
     active: Boolean
     bbrefId: String
@@ -204,6 +234,7 @@ type Query {
     birthDate: Date
   ): [Player]
   allPlayersByParentOrgId(parentOrgId: String): [Player]
+  allRankedProspects: [Player]
   allRankedProspectsByParentOrgId(parentOrgId: String): [Player]
   playerByBbrefId(bbrefId: String): Player
   playerById(id: ID): Player

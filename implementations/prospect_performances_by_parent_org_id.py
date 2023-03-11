@@ -4,7 +4,7 @@ from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
 from datetime import date
 
-transport = AIOHTTPTransport(url="http://localhost:4000/graphql")
+transport = AIOHTTPTransport(url="http://localhost:4001/graphql")
 client = Client(transport=transport)
 
 query = gql(

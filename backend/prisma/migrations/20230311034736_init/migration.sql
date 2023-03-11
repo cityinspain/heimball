@@ -1,8 +1,8 @@
 -- CreateTable
 CREATE TABLE "Player" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "name" TEXT NOT NULL,
     "firstName" TEXT,
     "middleName" TEXT,
@@ -13,7 +13,7 @@ CREATE TABLE "Player" (
     "birthStateProvince" TEXT,
     "birthCountry" TEXT,
     "birthCity" TEXT,
-    "birthDate" DATETIME,
+    "birthDate" TIMESTAMP(3),
     "height" INTEGER,
     "weight" INTEGER,
     "active" BOOLEAN,
@@ -25,7 +25,11 @@ CREATE TABLE "Player" (
     "bbrefMinorsId" TEXT,
     "retroId" TEXT,
     "fangraphsId" TEXT,
-    "fangraphsMinorMasterId" TEXT
+    "fangraphsMinorMasterId" TEXT,
+    "fangraphsOrgProspectRanking" INTEGER,
+    "fangraphsOverallProspectRanking" INTEGER,
+
+    CONSTRAINT "Player_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex

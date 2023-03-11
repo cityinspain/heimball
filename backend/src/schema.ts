@@ -250,6 +250,18 @@ const Query = objectType({
               fangraphsOrgProspectRanking: { not: null },
             },
           }),
+      }),
+      t.list.field('allRankedProspects', {
+        type: Player,
+        resolve: (_parent, _args, context) =>
+          context.prisma.player.findMany({
+            where: {
+              fangraphsOrgProspectRanking: { not: null },
+            },
+            orderBy: {
+              fangraphsOrgProspectRanking: 'asc',
+            },
+          }),
       })
   },
 })
@@ -361,16 +373,16 @@ const Mutation = objectType({
           data: mapArgsToPlayer(_args),
         }),
     })
-    t.field('resetAllFangraphsRankings', {
-      type: 'Player',
-      resolve: (_parent, _args, context) =>
-        context.prisma.player.updateMany({
-          data: {
-            fangraphsOrgProspectRanking: null,
-            fangraphsOverallProspectRanking: null,
-          },
-        }),
-    })
+    // t.field('resetAllFangraphsRankings', {
+    //   type: 'Player',
+    //   resolve: (_parent, _args, context) =>
+    //     context.prisma.player.updateMany({
+    //       data: {
+    //         fangraphsOrgProspectRanking: null,
+    //         fangraphsOverallProspectRanking: null,
+    //       },
+    //     }),
+    // })
     //   t.field("updatePlayerByFangraphsId", {
     //     type: "Player",
     //     args: playerArgs,
@@ -382,6 +394,29 @@ const Mutation = objectType({
     //         data: mapArgsToPlayer(_args),
     //       }),
     //   });
+    t.field('createOrUpdatePlayerByMlbId', {
+      type: 'Player',
+      args: playerArgs,
+      resolve: async (_parent, _args, context) => {
+        const player = await context.prisma.player.findUnique({
+          where: {
+            mlbId: _args.mlbId,
+          },
+        })
+        if (player) {
+          return context.prisma.player.update({
+            where: {
+              mlbId: _args.mlbId,
+            },
+            data: { ...player, ...mapArgsToPlayer(_args) },
+          })
+        } else {
+          return context.prisma.player.create({
+            data: mapArgsToPlayer(_args),
+          })
+        }
+      },
+    })
     t.field('updatePlayerByBbrefId', {
       type: 'Player',
       args: playerArgs,
