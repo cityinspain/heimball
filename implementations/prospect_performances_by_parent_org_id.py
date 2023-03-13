@@ -4,6 +4,8 @@ from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
 from datetime import date
 
+import pandas as pd
+
 transport = AIOHTTPTransport(url="http://localhost:4001/graphql")
 client = Client(transport=transport)
 
@@ -68,8 +70,15 @@ player_stats = []
 
 for game_pk in most_recent_game_pks:
     # print(game_pk)
+
+    game_date_url = f"https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live"
+    response = requests.get(game_date_url)
+    data = response.json()
+    game_date = data.get('gameData', {}).get(
+        'datetime', {}).get('officialDate', None)
+
     url = f"https://statsapi.mlb.com/api/v1/game/{game_pk}/boxscore"
-    # print(url)
+
     response = requests.get(url)
     data = response.json()
 
@@ -80,13 +89,55 @@ for game_pk in most_recent_game_pks:
         for player in players.values():
             # print(player)
             if player.get('person', {}).get('id', None) in ids:
+                player['gameDate'] = game_date
                 # print('in ids')
                 player_stats.append(player)
 
     # print(data)
 
-print(player_stats)
-print(len(player_stats))
+
+def map_batting_stats(bat):
+
+    return {
+        "summary": bat.get('summary', None),
+        "PA": bat.get('plateAppearances', None),
+        "AB": bat.get('atBats', None),
+        "H": bat.get('hits', None),
+        "2B": bat.get('doubles', None),
+        "3B": bat.get('triples', None),
+        "HR": bat.get('homeRuns', None),
+        "R": bat.get('runs', None),
+        "RBI": bat.get('rbi', None),
+        "BB": bat.get('baseOnBalls', None),
+        "SO": bat.get('strikeOuts', None),
+        "SB": bat.get('stolenBases', None),
+        "CS": bat.get('caughtStealing', None),
+        "GO": bat.get('groundOuts', None),
+        "FO": bat.get('flyOuts', None),
+    }
+
+
+def map_pitcher_stats(pit):
+
+    return {
+        "summary": pit.get('summary', None),
+        "K": pit.get('strikeOuts', None),
+        "BB": pit.get('baseOnBalls', None),
+        "H": pit.get('hits', None),
+        "ER": pit.get('earnedRuns', None),
+        "2B": pit.get('doubles', None),
+        "3B": pit.get('triples', None),
+        "HR": pit.get('homeRuns', None),
+        'BF': pit.get('battersFaced', None),
+        'IP': pit.get('inningsPitched', None),
+        'HBP': pit.get('hitBatsmen', None),
+        'WP': pit.get('wildPitches', None),
+        "PI": pit.get('pitchesThrown', None),
+        "balls": pit.get('balls', None),
+        "strikes": pit.get('strikes', None),
+    }
+
+
 for player in player_stats:
     person = player.get('person', {})
     name = person.get('fullName', None)
@@ -96,9 +147,22 @@ for player in player_stats:
     batting_stats = player.get('stats', {}).get('batting', {})
     pitching_stats = player.get('stats', {}).get('pitching', {})
 
-    print(f"{name} - {pos_abbreviation}")
-    print(batting_stats)
-    print(pitching_stats)
+    if len(batting_stats) == 0 and len(pitching_stats) == 0:
+        continue
+
+    print(f"\n{pos_abbreviation} {name} ({player['gameDate']})")
+    if len(batting_stats) > 0:
+
+        df = pd.DataFrame([map_batting_stats(batting_stats)])
+        print(df.to_string(index=False))
+    if len(pitching_stats) > 0:
+
+        df = pd.DataFrame([map_pitcher_stats(pitching_stats)])
+        print(df.to_string(index=False))
+
+    # spacer
+    print("")
+
 # for player in result["allRankedProspectsByParentOrgId"]:
 #     url = f"https://statsapi.mlb.com/api/v1/people/{player['mlbId']}?hydrate=stats(group=[pitching,hitting],type=[gameLog])"
 #     response = requests.get(url)
